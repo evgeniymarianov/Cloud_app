@@ -1,0 +1,112 @@
+class OrdersController < ApplicationController
+  protect_from_forgery with: :null_session
+  before_action :set_order, only: [:show, :edit, :update, :destroy]
+
+  # GET /orders
+  # GET /orders.json
+  def index
+    #@orders = Order.select('name', 'created_at', 'tags')
+    #@users = User.all
+    #render json: {orders: @orders}
+    render json: Order.select('name', 'created_at', 'tags')
+  end
+end
+
+
+  # GET /orders/1
+  # GET /orders/1.json
+  def show
+  end
+
+  # GET /orders/new
+  def new
+    @order = Order.new
+  end
+
+  # GET /orders/1/edit
+  def edit
+  end
+
+  # POST /orders
+  # POST /orders.json
+  def create
+<<<<<<< HEAD
+    byebug
+=======
+    #byebug
+    Rails.logger.debug "cpu: #{session[:id]}"
+>>>>>>> e745851... Исправил замечания от 23 марта
+    @order = Order.new(order_params)
+    @order = Order.new(order_params.to_h.merge({ user_id: session[:id] }))
+
+    respond_to do |format|
+      if @order.save
+        format.html { redirect_to @order, notice: 'Order was successfully created.' }
+        format.json { render :show, status: :created, location: @order }
+      else
+        format.html { render :new }
+        format.json { render json: @order.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # PATCH/PUT /orders/1
+  # PATCH/PUT /orders/1.json
+  def update
+    respond_to do |format|
+      if @order.update(order_params)
+        format.html { redirect_to @order, notice: 'Order was successfully updated.' }
+        format.json { render :show, status: :ok, location: @order }
+      else
+        format.html { render :edit }
+        format.json { render json: @order.errors, status: :unprocessable_entity }
+      end
+    end
+  end
+
+  # DELETE /orders/1
+  # DELETE /orders/1.json
+  def destroy
+    @order.destroy
+    respond_to do |format|
+      format.html { redirect_to orders_url, notice: 'Order was successfully destroyed.' }
+      format.json { head :no_content }
+    end
+  end
+
+    def approve
+      render json: params
+    end
+
+    def calc
+      render plain: 153
+    end
+  
+    def first
+      @order = Order.first
+      render :show
+    end
+
+    def index
+      @orders = Order.all
+    end
+
+
+
+  private
+    # Use callbacks to share common setup or constraints between actions.
+    def set_order
+      @order = Order.find(params[:id])
+    end
+
+    # Only allow a list of trusted parameters through.
+    def order_params
+<<<<<<< HEAD
+      params.require(:order).permit(:name, :status, :cost)
+    end
+
+=======
+      params.require(:order).permit(:name, :status, :cost, :cpu, :ram, :hdd_type, :hdd_capacity, :os)
+    end
+>>>>>>> e745851... Исправил замечания от 23 марта
+

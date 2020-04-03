@@ -1,0 +1,77 @@
+class CheckService
+    attr_reader :login, :password, :session, :credits, :cpu, :ram, :hdd_type, :hdd_capacity, :os
+
+    def  initialize(params, cpu, ram, hdd_type, hdd_capacity, os, session)
+        @params, @login, @password, @session, @cpu, @ram, @hdd_type, @hdd_capacity, @os = params, login, password, session, cpu, ram, hdd_type, hdd_capacity, os
+    end
+
+    def message
+        client = HTTPClient.new
+        response1 = client.request(:get, 'http://possible_orders.srv.w55.ru/')
+        possible_configs = JSON.parse(response1.body)["specs"]
+  
+        response2 = client.request(:get, 'http://service:5678/', :cpu => @params[:cpu], :ram => @params[:ram], :hdd_type => @params[:hdd_type], :hdd_capacity => @params[:hdd_capacity]) 
+        total = JSON.parse(response2.body)
+  
+        result = false
+        @params. each_pair do |k,v| 
+        @params[:cpu] = @params[:cpu].to_i
+        @params[:ram] = @params[:ram].to_i
+        @params[:hdd_capacity] = @params[:hdd_capacity].to_i 
+        end
+      
+        possible_configs.each do |h|
+  
+          next unless h["os"].include?(@params[:os]) && h["cpu"].include?(@params[:cpu]) && h["ram"].include?(@params[:ram]) && h["hdd_type"].include?(@params[:hdd_type])  
+            min = h["hdd_capacity"][@params[:hdd_type]]["from"]
+            max = h["hdd_capacity"][@params[:hdd_type]]["to"]
+            if (min < @params[:hdd_capacity].to_i) && (@params[:hdd_capacity].to_i < max)
+              result = true
+              break
+            end
+          end
+        balance_after_transaction = session[:credits] - total
+
+        if result && (balance_after_transaction > 0)
+        obj =  {
+            answer: {
+                result: true,
+                total: total,
+                balance: session[:credits],
+                balance_after_transaction: balance_after_transaction
+            },
+            status: :ok
+        }
+
+        else
+        obj =  {
+            answer: {
+                result: false,
+                error: "incorrect VM configuration or insufficient funds are used"
+            },
+            status: :not_acceptable
+        }
+        end
+  
+        if (session[:login] == nil) | (session[:credits] == nil)
+          obj =  {
+            answer: {
+              result: false,
+              error: "the current session does not have a username or balance"
+            },
+            status: :unauthorized
+          } 
+        end
+
+          obj
+
+        rescue Errno::ECONNREFUSED
+          obj =  {
+            answer: {
+              result: false,
+              error: "error accessing the external system"
+            },
+            status: :service_unavailable
+          } 
+    end
+end
