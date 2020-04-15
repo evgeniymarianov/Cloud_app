@@ -3,6 +3,7 @@
 require 'sidekiq/web'
 
 Rails.application.routes.draw do
+  resources :articles
   get 'welcome/main'
   namespace :admin do
     root 'welcome#index'
